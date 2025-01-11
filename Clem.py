@@ -26,8 +26,10 @@ class BodyParts:
         self.current_xposition = 0
         self.current_xposition = 0
     
+
 class Head(BodyParts):
     
+
     def listening_gesture(self, current_robot_emotion):
         '''Moves body part to signify listening, expressing 
         current_robot_emotion'''
@@ -169,14 +171,7 @@ class InteractingBodyParts(BodyParts):
                  current_zposition=0):
         super().__init__(current_xposition, current_yposition)
         self.current_zposition = current_zposition
-
-
-    @abstractmethod
-    def move(self, physical_interaction, safe_robot_force_method, user_force):
-        '''Moves the x, y or z coordinate position depending on 
-        interaction argument.'''
-        pass
-
+    
 
     @abstractmethod
     def return_to_neutral_positon(self):
@@ -187,104 +182,131 @@ class InteractingBodyParts(BodyParts):
 
 class Arms(InteractingBodyParts):    
 
-    def move(self, physical_interaction, hands_move_method, 
+    def hug(self, hands_hug_method, 
             safe_robot_force_method, user_force):
-        '''Moves the x, y or z coordinate position depending on 
-        interaction argument.'''
+        '''Moves the x and y coordinate position and coordinates 
+        with the hands to give the user a hug.'''
+
+        self.current_xposition += 30
+        self.current_yposition += 30
+
+        # Call method to move hands once arms in # position.    
+        hands_hug_method(safe_robot_force_method, user_force) 
+
+        # Call method to safely apply robot force in interaction.    
+        safe_robot_force_method(user_force)
+            
+        print("*Clem gives you a hug*")
+
+    
+    def big_hug(self, hands_hug_method, 
+            safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the hands to give the user a big hug.'''
         
-        if physical_interaction == "big hug":
-            self.current_xposition += 50
-            self.current_yposition += 30
-            hands_move_method() # Call method to move hands once arms in 
-                                # position.
-            safe_robot_force_method("big hug") # Call method to safely apply 
-                                      # robot force in interaction.
-            print("*Clem gives you a big hug*")
+        self.current_xposition += 50
+        self.current_yposition += 30
+        
+        # Call method to move hands once arms in # position.
+        hands_hug_method(safe_robot_force_method, user_force)  
+        
+        # Call method to safely apply robot force in interaction.                                         
+        safe_robot_force_method("big hug") 
+        
+        print("*Clem gives you a big hug*")
 
-        elif physical_interaction == "hug":
-            
-            self.current_xposition += 30
-            self.current_yposition += 30
-            
-            hands_move_method("hug") 
-            
-            safe_robot_force_method(user_force)
-            
-            print("*Clem gives you a hug*")
 
-        elif physical_interaction == "squeeze hand":
+    def squeeze_hand(self, hands_squeeze_method, 
+            safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the hands to squeeze the user's hand.'''
+        
+        self.current_xposition += 15
             
-            self.current_xposition += 15
+        hands_squeeze_method(safe_robot_force_method, user_force) 
             
-            hands_move_method("squeeze hand") 
+        safe_robot_force_method(user_force)
             
-            safe_robot_force_method(user_force)
-            
-            print("*Clem squeezes your hand*")
+        print("*Clem squeezes your hand*")
+    
 
-        elif physical_interaction == "hand shake":
+    def shake_hand(self, hands_shake_method, 
+            safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the hands to shake the user's hand.'''
 
-            for i in range(4): # Shake hands with 4 shakes.
+        for i in range(4): # Shake hands with 4 shakes.
                 self.current_xposition += 15
                 safe_robot_force_method(user_force)
-                hands_move_method("hand shake") 
+                hands_shake_method(safe_robot_force_method, user_force) 
                 safe_robot_force_method(user_force)
                 self.current_xposition -= 15
                 i += 1
                         
-            print("*Clem shakes your hand*")
+        print("*Clem shakes your hand*")
 
-        elif physical_interaction == "high five":
-            
-            self.current_xposition += 80
-            self.current_yposition += 30
-            
-            hands_move_method("high five") 
-            
-            safe_robot_force_method(user_force)
-            
-            print("*Clem gives you a high five*")
+    
+    def give_high_five(self, hands_hfive_method, 
+            safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the hands to give the user a high-five.'''
 
+        self.current_xposition += 80
+        self.current_yposition += 30
+            
+        hands_hfive_method(safe_robot_force_method, user_force) 
+            
+        safe_robot_force_method(user_force)
+            
+        print("*Clem gives you a high five*")
+                                                    
 
     def return_to_neutral_positon(self):
-        '''Returns body part coordinates x, y & z to 0.'''
+        '''Returns body part x and y coordinates to 0.'''
         super().return_to_natural_position()
 
 
     def listening_gesture(self, current_robot_emotion):
         return super().listening_gesture(current_robot_emotion)                
-
+        '''Unused inherited abstract method'''
 
 class Hands(InteractingBodyParts):
     
-    def move(self, physical_interaction, hands_move_method, 
-            safe_robot_force_method, user_force):
-        '''Moves the x, y or z coordinate position depending on 
-        interaction argument.'''
+    def hug(self, safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the arms to give the user a hug.'''
         
-        if physical_interaction == "big hug" or "hug":
+        self.current_yposition -= 15
+        safe_robot_force_method(user_force)
 
-            self.current_yposition -= 15
-            safe_robot_force_method(user_force)
 
-        elif physical_interaction == "hand squeeze":
+    def squeeze_hand(self, safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the arms to squeeze the user's hand.'''
 
-            self.current_yposition -= 20
-            safe_robot_force_method(user_force)
+        self.current_yposition -= 20
+        safe_robot_force_method(user_force)
 
-        elif physical_interaction == "hand shake":
 
-            self.current_yposition -= 25
-            safe_robot_force_method(user_force)
+    def shake_hand(self, safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the arms to shake the user's hand.'''
 
-        elif physical_interaction == "high five":
+        self.current_yposition -= 25
+        safe_robot_force_method(user_force)
 
-            self.current_xposition += 10
-            safe_robot_force_method(user_force)
+
+    def give_high_five(self, hands_hfive_method, 
+            safe_robot_force_method, user_force):
+        '''Moves the x and y coordinate position and coordinates 
+        with the arms to give the user a high-five.'''
+
+        self.current_xposition += 10
+        safe_robot_force_method(user_force)
 
 
     def return_to_neutral_positon(self):
-        '''Returns body part coordinates x, y & z to 0.'''
+        '''Returns body part x and y coordinates to 0.'''
         super().return_to_natural_position()
 
 
@@ -326,27 +348,26 @@ class Torso(InteractingBodyParts):
             pass # Do nothing if neutral emotion displayed.         
                             
     
-    def move(self, physical_interaction, hands_move_method, 
-            safe_robot_force_method, user_force):
+    def big_hug(self, physical_interaction, safe_robot_force_method, 
+                user_force):
         '''Moves the x, y or z coordinate position depending on 
         interaction argument.'''
+                
+        self.current_zposition += 20
+        safe_robot_force_method(user_force)
+
+
+    def hug(self, physical_interaction, safe_robot_force_method, 
+                user_force):
+        '''Moves the x, y or z coordinate position depending on 
+        interaction argument.'''        
+
+        self.current_zposition += 15
+        safe_robot_force_method(user_force)
         
-        if physical_interaction == "big hug":
-
-            self.current_zposition += 20
-            safe_robot_force_method(user_force)
-
-        elif physical_interaction == "hug":
-
-            self.current_zposition += 15
-            safe_robot_force_method(user_force)
-
-        else:
-            pass
-
 
     def return_to_neutral_positon(self):
-        '''Returns body part coordinates x, y & z to 0.'''
+        '''Returns body part x, y & z coordinates to 0.'''
         super().return_to_natural_position()
 
 
@@ -374,39 +395,10 @@ class PhysicalInteraction:
         '''Resets robot_force attribute to zero immediately following a 
         physical intearaction.'''
 
-        self.robot_force = 0
-
-
-    def suggest_physical_interaction(self, current_robot_emotion):
-        
-        if current_robot_emotion == "negative_2" or "positive_1":
-            
-            return "hug"
-
-        elif current_robot_emotion == "negative_1":
-            
-            return "squeeze hand"
-
-        elif current_robot_emotion == "neutral":
-            
-            return "shake hand"
-
-        elif current_robot_emotion == "positive_2":
-            
-            return "high five"
-
-        # Return "big hug" if current_robot_emotion is sympathetic_3 
-        # or positive_3. 
-        else:
-
-            return "big hug"         
+        self.robot_force = 0          
 
 
 class RobotEmotion:
-
-
-    def __init__(self):
-        self.current_robot_emotion = ""
 
 
     def decide_robot_emotion(self, current_user_emotion_rating):
@@ -428,8 +420,46 @@ class RobotEmotion:
             return "pleased_3"
 
 
-class UserEmotion:
+    def suggest_physical_interaction(self, current_user_emotion_rating):
+        """Suggests an appropriate physical interaction upon sayiing 
+        goodbye, based on decided robot emotion
 
+        Args:
+            current_user_emotion_rating (integer): score relating to
+            positive or negative emotion grade, to act as argument
+            when calling self.decide_robot_emotion() method.
+
+        Returns:
+            string: a suggested physical interaction.
+        """
+
+
+        robot_emotion = self.decide_robot_emotion(current_user_emotion_rating)
+
+        if robot_emotion == "sympathetic_2" or robot_emotion == "pleased_1":
+            
+            return "hug"
+
+        elif robot_emotion == "sympathetic_1":
+            
+            return "squeeze hand"
+
+        elif robot_emotion == "neutral":
+            
+            return "shake hand"
+
+        elif robot_emotion == "pleased_2":
+            
+            return "high five"
+
+        # Return "big hug" if current_robot_emotion is sympathetic_3 
+        # or pleased_3. 
+        else:
+
+            return "big hug"   
+
+
+class UserEmotion:
 
     def __init__(self):        
         self.user_emotion_rating_history = [] # A stack used to access most recent emotion.
@@ -453,42 +483,74 @@ class UserEmotion:
         returns the top of the stack (last appended rating).'''
 
         index_of_last_item = len(self.user_emotion_rating_history)-1
+
         return self.user_emotion_rating_history[index_of_last_item] 
+    
+
+    def convert_emotion_string_to_grade(self, emotion):
+        """Converts raw emotion string to a graded emotion of either
+        negative_3, negative_2, negative_1, neutral, positive_1,
+        positive_2, or positive_3.
+
+        Args:
+            emotion_or_emotions (string): single emotion string e.g.
+            'angered', 'frustrated'.
+        """
+        for key, value in self.user_emotion_choices.items():
+            if emotion in value:
+                return str(key)
 
 
+    def convert_emotion_list_to_grade_list(self, emotion_list):
+        """Converts raw emotion list to a graded emotion of 
+        either negative_3, negative_2, negative_1, neutral, 
+        positive_1, positive_2, or positive_3.
+
+        Args:
+            emotion_or_emotions (list): list of emotion strings e.g.
+            ['angered', 'frustrated'].
+        """
+
+        graded_emotions = []
+
+        for emotion in emotion_list:
+            for key, value in self.user_emotion_choices.items():
+                if emotion in value:
+                    graded_emotions.append(str(key))
+
+        return graded_emotions
+                    
+                    
     def commit_to_current_pos_neg_emotions(self, semantic_emotion_matches, 
                                         user_facial_expression, 
                                         user_posture_sensor):
-        '''Adds record of graded positive or negative emotion sensed to 
-        current_pos_neg_emotions list.'''
+        '''Adds record of graded positive or negative emotion sensed 
+        by semantic emotion match, facial expression sensor, and
+        posture sensor to current_pos_neg_emotions list.'''
         
+        em_list = semantic_emotion_matches
+        graded_emotions = self.convert_emotion_list_to_grade_list(em_list)
+        
+        for emotion in graded_emotions:
+            self.current_pos_neg_emotions.append(emotion)
 
-        for emotion in semantic_emotion_matches:
-            for key, value in self.user_emotion_choices.items():
-                if emotion == value:
-                    self.current_pos_neg_emotions.append(key)
+        u_f_e = user_facial_expression
+        u_f_e_graded_emotion = self.convert_emotion_string_to_grade(u_f_e)
+        self.current_pos_neg_emotions.append(u_f_e_graded_emotion)
 
-        for emotion in user_facial_expression:
-            for key, value in self.user_emotion_choices.items():
-                if emotion == value:
-                    self.current_pos_neg_emotions.append(key)
-
-        for emotion in user_posture_sensor:
-            for key, value in self.user_emotion_choices.items():
-                if emotion == value:
-                    self.current_pos_neg_emotions.append(key)
-
+        u_p_s = user_posture_sensor
+        u_p_s_graded_emotion = self.convert_emotion_string_to_grade(u_p_s)
+        self.current_pos_neg_emotions.append(u_p_s_graded_emotion)
+           
 
     def append_user_emotion_ratings_without_pitch(self):
         '''Gives a numerical emotion rating depending on graded
         'negative'or 'positive' emotion recorded in 
-        current_pos_neg_emotions, multiplied by pitch reading. 
+        current_pos_neg_emotions. 
         Negative emotions are given negative score, and positive 
         emotions are given positive score depending on grade recorded.
-        Total is multiplied by score based on pitch sensor reading 
-        (higher pitches suggest more intense emotion).'''
+        '''
                 
-
         for pos_or_neg_word in self.current_pos_neg_emotions:
             if pos_or_neg_word == "positive_1":
                 self.current_user_emotion_scores.append(1)
@@ -512,15 +574,15 @@ class UserEmotion:
         index_of_last_item = len(self.current_user_emotion_scores)-1
         sorted_score = sorted(self.current_user_emotion_scores)
         
-        if len(sorted_score)%2 != 0:
-            # Calculation if odd number of records.
+        # Calculation if odd number of records.
+        if len(sorted_score) % 2 != 0:            
             halfway_index = index_of_last_item // 2 
             median = sorted_score[halfway_index] 
         else:
             # Calculation if even number of records.
-            index_1 = index_of_last_item / 2
-            index_2 = index_1 + 1
-            num_to_divide = sorted_score[index_1] + sorted_score[index_2]
+            over_hway = index_of_last_item // 2
+            under_hway = over_hway - 1
+            num_to_divide = sorted_score[over_hway] + sorted_score[under_hway]
             median = num_to_divide // 2 
 
         return median
@@ -529,7 +591,8 @@ class UserEmotion:
     def append_user_emotion_rating_based_on_pitch(self, baseline_pitch, user_voice_pitch):
         '''Multiply median emotion score according to pitch reading 
         (depending on base assessment): higher pitch readings 
-        inferred as more intense emotion.'''
+        inferred as more intense emotion so multiplied by greater 
+        value.'''
         
         median_rating = self.calculate_median_user_emotion_rating()
                 
@@ -597,7 +660,7 @@ class UserEmotion:
         analysis and subsequent calculation.'''
         
         self.current_user_emotion_scores = []
-
+    
 
 class SemanticSearch:
     
@@ -692,7 +755,7 @@ class Dialogue:
         self.chat_log_history = chat_log_history
         self.messages_to_reply_to = messages_to_reply_to        
 
-    def clem_message(self, new_chat_log):
+    def respond(self, new_chat_log):
         '''Makes calls to Chat GPT API and prompts user for input before saving
         said input, responding and saving response.'''                
         
@@ -718,49 +781,119 @@ class Dialogue:
 
 
 
-    def robot_verbal_response(self, user_input):
-        pass
+    def say_goodbye(self, user_emotion_score_history, first_user_emotion_score, final_user_emotion_score):
+        """Returns a goodbye message that comments on the user's 
+        emotional journey from the start of conversation to the end. 
 
-    
+        Args:
+            first_user_emotion_score (integer): first emotion score 
+            reading.
+
+            final_user_emotion_score (integer): final emotion score 
+            reading.
+        
+        """
+
+        pos_msg = '''POS I'm glad that you seem to be feeling more positive since 
+                    the start of our chat. I hope that I can continue to have 
+                    a positive impact on your mood!'''
+        
+        no_change_pos = '''NO_C_POS I'm glad that you seem to have maintained a positive
+                        outlook during our chat. Please know that this is a 
+                        safe space to talk about negative emotions, should you 
+                        wish to  during our next chat.'''
+
+        no_change_neg = '''NO_C_NEG I'm sorry that I don't appear to have improved your
+                        mood. I hope I can have a more positive influence in our
+                        next chat.'''
+        
+        neg_msg = '''NEG I'm sorry that you seem to be feeling less positive about 
+                    things since the start of our conversation. I hope I can 
+                    make you feel better the next time we chat.'''
+        
+        if len(user_emotion_score_history) == 0:
+            return "I'm sorry we didn't get to chat; maybe next time. Goodbye!"
+        # Reflect on user's emotional score readings, comparing first and last.
+        elif first_user_emotion_score < final_user_emotion_score:
+            return pos_msg
+
+        elif first_user_emotion_score > final_user_emotion_score:
+            return neg_msg
+
+        # Condition if no change but final score is positive.
+        elif final_user_emotion_score > 0:
+            return no_change_pos
+
+        # Condition if no change but final score is netural or negative.
+        else:
+            return no_change_neg
+
+
+    def user_choice_confirmed(self, user_choice, general_conf=False, 
+                            quit_conf=False):
+        """Returns True if user enters 'y' or 'q', False if 'n' or 
+        'c' (depending on state). Prompts to try again if none of 
+        these choices entered.
+
+        Args:
+            user_choice (string): 'y' or 'n' if general confirmation,
+            'q' or 'c' if confirming goodbye message.
+            general_conf (Boolean): True if used as general confirmation.
+            quit_conf (Boolean): True if used as confirmation of user
+            wanting to quit.
+        
+        """
+
+        while True:
+            if general_conf:
+                try:
+                    if user_choice.lower() == "y":                    
+                        return True
+
+                    elif user_choice.lower() == "n":
+                        return False
+                        
+                except AttributeError:
+                    
+                    raise AttributeError("/n!! Please choose 'y' or 'n' !!/n")
+
+            elif quit_conf:
+
+                try:                
+
+                    if user_choice.lower() == "q":
+                        return True
+
+                    elif user_choice.lower() == "c":
+                        return False            
+
+                except AttributeError:
+                    
+                    raise AttributeError(("/n!! Please choose 'q' or 'c' !!/n"))
     
 
-    def end_of_speech_check(self):
+    def print_end_of_speech_prompt(self): 
         '''Prompts user to check if they have finished their speech input or
-        if they would like to add more.'''
+        if they would like to add more. Returns Boolean'''
 
         prompts = ["Anything else on your mind?","Would you like to"
             " add anything else?", "Do you want to tell me more about that?"]
         random_reply_index = random.randint(0, len(prompts) - 1)
+                
         print(prompts[random_reply_index])
-        user_choice = input("Type 'y' or 'n': ")
-        while True:
-            try:
-                if user_choice.lower() == "y":
-                    self.end_of_speech = False
-                    return
-                elif user_choice.lower() == "n":
-                    self.end_of_speech = True
-                    return
-            except TypeError:
-                print("/n!!Please choose 'y' or 'n'!!/n")            
+                            
 
-
+description_of_carer_role = '''You are a caring social assistant who listens to
+                            elderly people and responds so that they feel heard
+                            and understood. You may give advice occasionally.
+                            '''
 dialogue = Dialogue(chat_log_history = [{"role": "system",
-                                                      "content": "You are a" 
-                                                      " caring social"
-                                                      " assistant who listens"
-                                                      " to elderly people and"
-                                                      " responds so that they"
-                                                      " feel heard and"
-                                                      " understood. You may"
-                                                      " give advice"
-                                                      " occasionally."}])            
+                                        "content": description_of_carer_role}])            
                             
 # CLI logic.
 if __name__ == "__main__":
 
     messages_to_reply_to = deque([])
-    
         
     user_message_string = ""
     
@@ -769,9 +902,15 @@ if __name__ == "__main__":
 
     print("Hi, " + user_name + ". What would you like to chat about" 
                     " today?")
-    while True:        
-                        
-        first_user_input = input()
+    while True:
+
+        if dialogue.user_wants_to_quit():
+            # Call goodbye message.
+            dialogue.say_goodbye()
+
+        else:
+
+            first_user_input = input()
 
         # Catch error if no speech inputted #################################################################### test
         try:
@@ -780,7 +919,7 @@ if __name__ == "__main__":
             print("first input: ",messages_to_reply_to)
             ######################################################## add listening gestures
             dialogue.end_of_speech_check()                
-            if dialogue.end_of_speech:
+            if dialogue.user_is_at_end_of_speech():
                 second_user_input = "."    
             else:
                 second_user_input = input() 
