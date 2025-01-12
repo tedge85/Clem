@@ -87,119 +87,139 @@ class FirstUserEmotionTests(unittest.TestCase):
          
         self.user_emotion = UserEmotion()
 
-        self.user_emotion.current_pos_neg_emotions = ["positive_1", 
-                                                    "positive_2", 
-                                                    "neutal", "positive_3", 
-                                                    "negative_2"]
+        ems = ["positive_1","positive_2","neutal","positive_3","negative_2"]
 
-        self.user_emotion.append_user_emotion_ratings_without_pitch()
+        self.user_emotion.graded_emotions = ems
+
+        self.user_emotion.convert_nonpitch_emotions_to_graded_emotion_scores()
         
 
-    def test_user_emotion_ratings_without_pitch(self):
+    def test_user_emotion_scores_without_pitch(self):
 
-        emotion_scores = self.user_emotion.current_user_emotion_scores      
+        emotion_scores = self.user_emotion.emotions_scores      
 
         self.assertEqual(emotion_scores, [1,2,0,3,-2])
         
 
-    def test_calculate_median_user_emotion_rating_odd_num_entries(self):
+    def test_calculate_median_user_emotion_score_odd_num_entries(self):
         '''Tests method with odd number of entries in 
         self.current_user_emotion_scores'''
         
-        method = self.user_emotion.calculate_median_user_emotion_rating()
+        method = self.user_emotion.calculate_median_user_emotion_score()
 
         self.assertEqual(method, 1)
 
 
-    def test_convert_emotion_string_to_grade(self):    
+    def test_convert_emotion_string_to_graded_emotion(self):    
         
-        method = self.user_emotion.convert_emotion_string_to_grade("excited")
+        user_em = self.user_emotion
+
+        method = user_em.convert_emotion_string_to_graded_emotion("excited")
 
         self.assertEqual(method, "positive_2")
 
 
-    def test_convert_emotion_list_to_grade_list(self):    
+    def test_convert_emotion_list_to_graded_emotion_list(self):    
         
         e_list = ["OK", "upset", "upbeat"]
 
-        method = self.user_emotion.convert_emotion_list_to_grade_list(e_list)
+        user_em = self.user_emotion
+
+        method = user_em.convert_emotion_list_to_graded_emotion_list(e_list)
 
         self.assertEqual(method, ["neutral", "negative_2", "positive_1"])
         
 
-    def test_append_user_emotion_rating_based_on_pitch(self):
+    def test_convert_pitch_emotions_to_graded_emotion_scores(self):
         
-        self.user_emotion.append_user_emotion_rating_based_on_pitch("high", 180)
+        self.user_emotion.convert_pitch_emotions_to_graded_emotion_scores("high", 180)
         
-        emotion_scores = self.user_emotion.current_user_emotion_scores      
+        emotion_scores = self.user_emotion.emotions_scores      
 
         self.assertEqual(emotion_scores, [1,2,0,3,-2,2])    
-
-
-    def test_commit_to_current_pos_neg_emotions(self):
-
-        em_list = ["fearful", "proud", "good spirits"]
-
-        e = "grand"
-
-        p = "OK"         
-
-        self.user_emotion.commit_to_current_pos_neg_emotions(em_list, e, p)
-
-        graded_em = ["positive_1", "positive_2", "neutal", "positive_3", 
-                    "negative_2", "negative_3", "positive_3", "positive_1", 
-                    "neutral", "neutral"] 
-        
-        self.assertEqual(self.user_emotion.current_pos_neg_emotions, graded_em)
-
+    
 
 class SecondUserEmotionTests(unittest.TestCase):
 
     def setUp(self):
         
-        self.user_emotion = UserEmotion()
+        self.user_em = UserEmotion()
+        
+        ems = ["positive_1","positive_2","neutal","positive_3","negative_2"]
 
-        self.user_emotion.current_pos_neg_emotions = ["positive_1", 
-                                                    "positive_2", 
-                                                    "neutal", "positive_3", 
-                                                    "negative_2"]
+        self.user_em.graded_emotions = ems
 
-        self.user_emotion.append_user_emotion_ratings_without_pitch()
+        self.user_em.convert_nonpitch_emotions_to_graded_emotion_scores()
 
-        self.user_emotion.append_user_emotion_rating_based_on_pitch("high", 180)
+        self.user_em.convert_pitch_emotions_to_graded_emotion_scores("high", 180)
 
 
-    def test_calculate_mean_user_emotion_rating(self):
+    def test_calculate_mean_user_emotions_score(self):
 
-        method = self.user_emotion.calculate_mean_user_emotion_rating()        
+        method = self.user_em.calculate_mean_user_emotions_score()        
 
         self.assertEqual(method, 1)
 
-    
-    def test_store_mean_user_emotion_rating(self):
-        mean = self.user_emotion.calculate_mean_user_emotion_rating()
-        
-        self.user_emotion.store_mean_user_emotion_rating(mean)
 
-        emotion_history = self.user_emotion.user_emotion_rating_history
+    def test_append_user_emotion_ratings_without_pitch(self):
+
+        user_em = self.user_em
+
+        curr_emotion_ratings = user_em.emotions_scores
+
+        expected_result = [1,2,0,3,-2,2]
+
+        self.assertEqual(curr_emotion_ratings, expected_result)
+    
+
+    def test_record_final_user_emotion_score(self):
+
+        mean = self.user_em.calculate_mean_user_emotions_score()
+        
+        self.user_em.record_final_user_emotion_score(mean)
+
+        emotion_history = self.user_em.user_emotion_score_history
 
         self.assertEqual(emotion_history, [1])
 
 
-    def test_reset_current_pos_neg_emotions(self):
+    def test_save_graded_emotions(self):
 
-        self.user_emotion.reset_current_pos_neg_emotions()
+        user_em = self.user_em
 
-        current_emotions = self.user_emotion.current_pos_neg_emotions
+        em_list = ["joyful","happy","upbeat"]
+        em1 = "annoyed"
+        em2 = "grand"        
+
+        user_em.save_graded_emotions(em_list,em1,em2)
+
+        updates_to_list = ["positive_3","positive_2","positive_1","negative_2",
+                         "neutral"]
+
+        previous_list = ["positive_1","positive_2","neutal","positive_3", 
+                        "negative_2"]
+
+        expected_list = previous_list + updates_to_list
+        
+        stored_emotions = user_em.graded_emotions
+
+        self.assertEqual(stored_emotions,expected_list)
+
+
+    def test_reset_graded_emotions(self):
+
+        self.user_em.reset_graded_emotions()
+
+        current_emotions = self.user_em.graded_emotions
 
         self.assertEqual(current_emotions, [])
 
 
-    def test_reset_current_user_emotion_scores(self):
+    def test_reset_emotions_scores(self):
 
-        self.user_emotion.reset_current_user_emotion_scores()
+        self.user_em.reset_emotions_scores()
 
-        current_emotions_scores = self.user_emotion.current_user_emotion_scores
+        current_emotions_scores = self.user_em.emotions_scores
 
         self.assertEqual(current_emotions_scores, [])
 
@@ -210,26 +230,26 @@ class ThirdUserEmotionTests(unittest.TestCase):
         
         self.user_emotion = UserEmotion()
 
-        self.user_emotion.user_emotion_rating_history = [0,2,4,1,2,-1]
+        self.user_emotion.user_emotion_score_history = [0,2,4,1,2,-1]
         
-        self.user_emotion.current_user_emotion_scores = [3,2,3,2]
+        self.user_emotion.emotions_scores = [3,2,3,2]
     
 
-    def test_calculate_median_user_emotion_rating_even_num_entries(self):
+    def test_calculate_median_user_emotion_score_even_num_entries(self):
         '''Tests method with even number of entries in 
         self.current_user_emotion_scores'''                
 
-        method = self.user_emotion.calculate_median_user_emotion_rating()
+        method = self.user_emotion.calculate_median_user_emotion_score()
 
         self.assertEqual(method, 2)
 
 
-    def test_view_most_recent_user_emotion_rating(self):
+    def test_return_most_recent_user_emotion_grade(self):
 
-        method = self.user_emotion.view_most_recent_user_emotion_rating()
+        method = self.user_emotion.return_most_recent_user_emotion_grade()
 
         self.assertEqual(method, -1)
-
+        
 
 class RobotEmotionTest(unittest.TestCase):
 
