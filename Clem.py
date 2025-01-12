@@ -11,9 +11,10 @@ openai.api_key = API_KEY
 
 class BodyParts:
 
-    def __init__(self, current_xposition=0, current_yposition=0):
-        self.current_xposition = current_xposition
-        self.current_yposition = current_yposition
+    def __init__(self):
+        self.current_xposition = 0 
+        self.current_yposition = 0
+        self.current_zposition = 0
 
 
     @abstractmethod
@@ -25,10 +26,14 @@ class BodyParts:
         '''Returns all body part coordinates to 0.'''
         self.current_xposition = 0
         self.current_xposition = 0
-    
+        self.current_zposition = 0
+
 
 class Head(BodyParts):
     
+    def __init__(self):
+        super().__init__()
+
 
     def listening_gesture(self, current_robot_emotion):
         '''Moves body part to signify listening, expressing 
@@ -36,36 +41,52 @@ class Head(BodyParts):
                 
         if current_robot_emotion == "sympathetic_1":
             
+            self.current_yposition += 20
+
             for i in range(6):
-                self.current_yposition += 10                
-                self.current_yposition -= 20
+                self.current_zposition += 10
+                self.current_zposition -= 10                
+                
                 
             print("*Clem nods delicately*") 
         
         elif current_robot_emotion == "sympathetic_2":
+
+            self.current_yposition += 10
+
             for i in range(8):
-                self.current_yposition += 10                
-                self.current_yposition -= 20
+                self.current_zposition += 5
+                self.current_zposition -= 5                                
                 
             print("*Clem nods delicately*")
 
         elif current_robot_emotion == "sympathetic_3":
+            
+            self.current_yposition += 30
+            
             for i in range(6):
-                self.current_yposition += 20                
-                self.current_yposition -= 40
+                self.current_zposition += 10
+                self.current_zposition -= 10                
+                
             print("*Clem nods sympathetically*")
 
         elif current_robot_emotion == "pleased_2":
+            
+            self.current_yposition += 40
+
             for i in range(6):
-                self.current_yposition += 20                
-                self.current_yposition -= 40
+                self.current_zposition += 30
+                self.current_zposition -= 30                                
                 
             print("*Clem nods slowly*")
 
         elif current_robot_emotion == "pleased_3":
+            
+            self.current_yposition += 20
+
             for i in range(6):
-                self.current_yposition += 30                
-                self.current_yposition -= 60
+                self.current_zposition += 5                
+                self.current_zposition -= 5
                 
             print("*Clem nods encouragingly*")
 
@@ -79,19 +100,23 @@ class Head(BodyParts):
 
 
 class EyeLids(BodyParts):
+
+    def __init__(self):
+        super().__init__()
     
+
     def listening_gesture(self, current_robot_emotion):
         '''Moves body part to signify listening, expressing 
         current_robot_emotion'''                        
         
         # Condition for all pleased emotions.
-        if current_robot_emotion[1] == "p": 
+        if current_robot_emotion[0] == "p": 
             
             self.current_xposition += 15                
             self.current_yposition -= 10            
                 
             print("*Clem squints*")
-                         
+        # Condition for all other emorions.                         
         else:
             self.current_xposition += 10                
             self.current_yposition -= 5            
@@ -105,7 +130,11 @@ class EyeLids(BodyParts):
 
 
 class Eyebrows(BodyParts):
-    
+
+    def __init__(self):
+        super().__init__()
+
+
     def listening_gesture(self, current_robot_emotion):
         '''Moves body part to signify listening, expressing 
         current_robot_emotion'''                        
@@ -113,7 +142,7 @@ class Eyebrows(BodyParts):
         c_r_e = current_robot_emotion 
         
         # Condition for all sympathetic emotions.
-        if c_r_e[1] == "s" or c_r_e == "pleased_3": 
+        if c_r_e[0] == "s" or c_r_e == "pleased_3": 
             
             self.current_xposition += 15                                        
                 
@@ -128,6 +157,10 @@ class Eyebrows(BodyParts):
 
 
 class Mouth(BodyParts): ######################################## check UML for R and L
+    
+    def __init__(self):
+        super().__init__()
+
     
     def listening_gesture(self, current_robot_emotion):
         '''Moves body part to signify listening, expressing 
@@ -164,23 +197,11 @@ class Mouth(BodyParts): ######################################## check UML for R
         super().return_to_natural_position()
         
 
-class InteractingBodyParts(BodyParts): 
+class Arms(BodyParts):
 
-    @abstractmethod
-    def __init__(self, current_xposition=0, current_yposition=0, 
-                 current_zposition=0):
-        super().__init__(current_xposition, current_yposition)
-        self.current_zposition = current_zposition
-    
+    def __init__(self):
+        super().__init__()
 
-    @abstractmethod
-    def return_to_neutral_positon(self):
-        '''Returns body part coordinates x, y & z to 0.'''
-        super().return_to_natural_position() # Reset x and y positions.
-        self.current_zposition = 0
-        
-
-class Arms(InteractingBodyParts):    
 
     def hug(self, hands_hug_method, 
             safe_robot_force_method, user_force):
@@ -270,8 +291,13 @@ class Arms(InteractingBodyParts):
         return super().listening_gesture(current_robot_emotion)                
         '''Unused inherited abstract method'''
 
-class Hands(InteractingBodyParts):
+
+class Hands(BodyParts):
+
+    def __init__(self):
+        super().__init__()
     
+
     def hug(self, safe_robot_force_method, user_force):
         '''Moves the x and y coordinate position and coordinates 
         with the arms to give the user a hug.'''
@@ -296,8 +322,7 @@ class Hands(InteractingBodyParts):
         safe_robot_force_method(user_force)
 
 
-    def give_high_five(self, hands_hfive_method, 
-            safe_robot_force_method, user_force):
+    def give_high_five(self, safe_robot_force_method, user_force):
         '''Moves the x and y coordinate position and coordinates 
         with the arms to give the user a high-five.'''
 
@@ -314,8 +339,12 @@ class Hands(InteractingBodyParts):
         return super().listening_gesture(current_robot_emotion)
 
 
-class Torso(InteractingBodyParts):
+class Torso(BodyParts):
+
+    def __init__(self):
+        super().__init__()
     
+
     def listening_gesture(self, current_robot_emotion):
         '''Moves body part to signify listening, expressing 
         current_robot_emotion'''                        
@@ -371,35 +400,19 @@ class Torso(InteractingBodyParts):
         super().return_to_natural_position()
 
 
-class PhysicalInteraction:
-
-    def __init__(self):
-        
-        self.robot_force = 0         
-
+class PhysicalInteraction:     
 
     def apply_safe_robot_force(self, user_force):
-        '''Calculates how much force to apply from hands, arms and torso when 
-        physically interacting with user, depending on how much force applied 
-        by user to Clem.'''        
+        '''Calculates how much force to apply from hands, arms or 
+        torso should be applied when physically interacting with 
+        user, depending on how much force applied by user to Clem.'''        
+        
+        robot_force = 100 - user_force                
 
-        force_total = user_force + self.robot_force
-
-        while force_total < 100:
-            self.robot_force += 1
-
-        return self.robot_force
-
-    
-    def reset_robot_force(self):
-        '''Resets robot_force attribute to zero immediately following a 
-        physical intearaction.'''
-
-        self.robot_force = 0          
+        return robot_force         
 
 
 class RobotEmotion:
-
 
     def decide_robot_emotion(self, current_user_emotion_rating):
         '''Robot counter emotion decided based on user emotion rating.'''
@@ -462,7 +475,7 @@ class RobotEmotion:
 class UserEmotion:
 
     def __init__(self):        
-        self.user_emotion_rating_history = [] # A stack used to access most recent emotion.
+        self.user_emotion_score_history = [] # A stack used to access most recent emotion.
         
         ########################################################################################################## ref https://www.researchgate.net/publication/329290966_Emotion_Recognition_via_Facial_Expression_Utilization_of_Numerous_Feature_Descriptors_in_Different_Machine_Learning_Algorithms/citation/download
         self.user_emotion_choices = {
@@ -474,20 +487,20 @@ class UserEmotion:
                                 "positive_2": ["excited", "happy", "pleased"],
                                 "positive_3": ["joyful", "surprised", "proud"]   
                                 }
-        self.current_pos_neg_emotions = []
-        self.current_user_emotion_scores = []
+        self.graded_emotions = []
+        self.emotions_scores = []
 
 
-    def view_most_recent_user_emotion_rating(self):
-        '''Treats self.user_emotion_rating_history like a stack and 
+    def return_most_recent_user_emotion_grade(self):
+        '''Treats self.user_emotion_score_history like a stack and 
         returns the top of the stack (last appended rating).'''
 
-        index_of_last_item = len(self.user_emotion_rating_history)-1
+        index_of_last_item = len(self.user_emotion_score_history)-1
 
-        return self.user_emotion_rating_history[index_of_last_item] 
+        return self.user_emotion_score_history[index_of_last_item] 
     
 
-    def convert_emotion_string_to_grade(self, emotion):
+    def convert_emotion_string_to_graded_emotion(self, emotion):
         """Converts raw emotion string to a graded emotion of either
         negative_3, negative_2, negative_1, neutral, positive_1,
         positive_2, or positive_3.
@@ -495,13 +508,16 @@ class UserEmotion:
         Args:
             emotion_or_emotions (string): single emotion string e.g.
             'angered', 'frustrated'.
+
+            Return negative_3, negative_2, negative_1, neuutral, 
+            positive_1, positive_2, positive_3 (string)
         """
         for key, value in self.user_emotion_choices.items():
             if emotion in value:
                 return str(key)
 
 
-    def convert_emotion_list_to_grade_list(self, emotion_list):
+    def convert_emotion_list_to_graded_emotion_list(self, emotion_list):
         """Converts raw emotion list to a graded emotion of 
         either negative_3, negative_2, negative_1, neutral, 
         positive_1, positive_2, or positive_3.
@@ -519,9 +535,9 @@ class UserEmotion:
                     graded_emotions.append(str(key))
 
         return graded_emotions
-                    
-                    
-    def commit_to_current_pos_neg_emotions(self, semantic_emotion_matches, 
+
+                                                
+    def save_graded_emotions(self, semantic_emotion_matches, 
                                         user_facial_expression, 
                                         user_posture_sensor):
         '''Adds record of graded positive or negative emotion sensed 
@@ -529,50 +545,50 @@ class UserEmotion:
         posture sensor to current_pos_neg_emotions list.'''
         
         em_list = semantic_emotion_matches
-        graded_emotions = self.convert_emotion_list_to_grade_list(em_list)
+        graded_emotions = self.convert_emotion_list_to_graded_emotion_list(em_list)
         
         for emotion in graded_emotions:
-            self.current_pos_neg_emotions.append(emotion)
+            self.graded_emotions.append(emotion)
 
         u_f_e = user_facial_expression
-        u_f_e_graded_emotion = self.convert_emotion_string_to_grade(u_f_e)
-        self.current_pos_neg_emotions.append(u_f_e_graded_emotion)
+        u_f_e_graded_emotion = self.convert_emotion_string_to_graded_emotion(u_f_e)
+        self.graded_emotions.append(u_f_e_graded_emotion)
 
         u_p_s = user_posture_sensor
-        u_p_s_graded_emotion = self.convert_emotion_string_to_grade(u_p_s)
-        self.current_pos_neg_emotions.append(u_p_s_graded_emotion)
+        u_p_s_graded_emotion = self.convert_emotion_string_to_graded_emotion(u_p_s)
+        self.graded_emotions.append(u_p_s_graded_emotion)
            
 
-    def append_user_emotion_ratings_without_pitch(self):
+    def convert_nonpitch_emotions_to_graded_emotion_scores(self):
         '''Gives a numerical emotion rating depending on graded
         'negative'or 'positive' emotion recorded in 
-        current_pos_neg_emotions. 
+        current_graded_emotions. 
         Negative emotions are given negative score, and positive 
         emotions are given positive score depending on grade recorded.
         '''
                 
-        for pos_or_neg_word in self.current_pos_neg_emotions:
+        for pos_or_neg_word in self.graded_emotions:
             if pos_or_neg_word == "positive_1":
-                self.current_user_emotion_scores.append(1)
+                self.emotions_scores.append(1)
             elif pos_or_neg_word == "positive_2":
-                self.current_user_emotion_scores.append(2)
+                self.emotions_scores.append(2)
             elif pos_or_neg_word == "positive_3":
-                self.current_user_emotion_scores.append(3)
+                self.emotions_scores.append(3)
             elif pos_or_neg_word == "negative_1":
-                self.current_user_emotion_scores.append(-1)
+                self.emotions_scores.append(-1)
             elif pos_or_neg_word == "negative_2":
-                self.current_user_emotion_scores.append(-2)
+                self.emotions_scores.append(-2)
             elif pos_or_neg_word == "negative_3":
-                self.current_user_emotion_scores.append(-3)
+                self.emotions_scores.append(-3)
             else:
-                self.current_user_emotion_scores.append(0) # Condition if neutral emotion.
+                self.emotions_scores.append(0) # Condition if neutral emotion.
 
 
-    def calculate_median_user_emotion_rating(self):
+    def calculate_median_user_emotion_score(self):
         '''Calculates median user emotion rating held in user_emotion_score list.'''
         
-        index_of_last_item = len(self.current_user_emotion_scores)-1
-        sorted_score = sorted(self.current_user_emotion_scores)
+        index_of_last_item = len(self.emotions_scores)-1
+        sorted_score = sorted(self.emotions_scores)
         
         # Calculation if odd number of records.
         if len(sorted_score) % 2 != 0:            
@@ -588,13 +604,13 @@ class UserEmotion:
         return median
 
 
-    def append_user_emotion_rating_based_on_pitch(self, baseline_pitch, user_voice_pitch):
+    def convert_pitch_emotions_to_graded_emotion_scores(self, baseline_pitch, user_voice_pitch):
         '''Multiply median emotion score according to pitch reading 
         (depending on base assessment): higher pitch readings 
         inferred as more intense emotion so multiplied by greater 
         value.'''
         
-        median_rating = self.calculate_median_user_emotion_rating()
+        median_rating = self.calculate_median_user_emotion_score()
                 
         if baseline_pitch == "low":
             if user_voice_pitch <= 85 and user_voice_pitch < 110:
@@ -624,17 +640,17 @@ class UserEmotion:
             else: 
                 pitch_emotion_rating = median_rating * 4
                             
-        self.current_user_emotion_scores.append(pitch_emotion_rating)
+        self.emotions_scores.append(pitch_emotion_rating)
 
 
-    def calculate_mean_user_emotion_rating(self):
+    def calculate_mean_user_emotions_score(self):
         '''Takes the mean score of all recorded emotion ratings.'''
 
-        num_of_ratings = len(self.current_user_emotion_scores)
+        num_of_ratings = len(self.emotions_scores)
         
         total_emotion_rating = 0
 
-        for rating in self.current_user_emotion_scores:
+        for rating in self.emotions_scores:
             
             total_emotion_rating += rating
 
@@ -643,23 +659,23 @@ class UserEmotion:
         return mean_emotion_rating
 
 
-    def store_mean_user_emotion_rating(self, mean_emotion_rating):
-        '''Appends final_user_emotion to user_emotion_rating_history list.'''
+    def record_final_user_emotion_score(self, mean_emotion_rating):
+        '''Appends final_user_emotion to user_emotion_score_history list.'''
 
-        self.user_emotion_rating_history.append(mean_emotion_rating)
+        self.user_emotion_score_history.append(mean_emotion_rating)
 
 
-    def reset_current_pos_neg_emotions(self):
+    def reset_graded_emotions(self):
         '''Resets self.current_pos_neg_emotions, ready for next emotion 
         analysis.'''
         
-        self.current_pos_neg_emotions = []
+        self.graded_emotions = []
 
-    def reset_current_user_emotion_scores(self):
+    def reset_emotions_scores(self):
         '''Resets self.current_user_emotion_scores, ready for next emotion 
         analysis and subsequent calculation.'''
         
-        self.current_user_emotion_scores = []
+        self.emotions_scores = []
     
 
 class SemanticSearch:
@@ -704,6 +720,7 @@ class ExpressionSensor:
         self.emotions_final_index = len(self.emotions_to_match) -1
         self.random_index = random.randint(0, self.emotions_final_index)
 
+
     def sense_facial_expression(self):
         '''Simulates facial expression recognition sensor by returning random 
         emotion.'''
@@ -712,6 +729,10 @@ class ExpressionSensor:
 
 
 class PostureSensor(ExpressionSensor):
+
+    def __init__(self):
+        super().__init__()
+
 
     def match_posture_to_emotion(self):
         '''Simulates posture recognition sensor by returning random emotion.'''
@@ -752,6 +773,7 @@ class PitchSensor:
 class Dialogue:
 
     def __init__(self, chat_log_history, messages_to_reply_to=[]):
+        
         self.chat_log_history = chat_log_history
         self.messages_to_reply_to = messages_to_reply_to        
 
@@ -762,10 +784,15 @@ class Dialogue:
         # Update chat_log history.
         self.chat_log_history.append(new_chat_log)
 
+        # system_content gives brief of Clem's role. ################################################ WILL THIS CAUSE AN ERROR?  
+        system_content = '''You are a caring social assistant who listens to 
+                        elderly people and responds so that they feel heard and
+                        understood. You may give advice occasionally.'''
+
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a caring social assistant who listens to elderly people and responds so that they feel heard and understood. You may give advice occasionally."},
+                {"role": "system", "content": system_content},
                 *self.chat_log_history, # Unpack chat_log_history.
                 {"role": "user", "content": new_chat_log["content"]}
             ]
@@ -878,6 +905,7 @@ class Dialogue:
 
         prompts = ["Anything else on your mind?","Would you like to"
             " add anything else?", "Do you want to tell me more about that?"]
+        
         random_reply_index = random.randint(0, len(prompts) - 1)
                 
         print(prompts[random_reply_index])
